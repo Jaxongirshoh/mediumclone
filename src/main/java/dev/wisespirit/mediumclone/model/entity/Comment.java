@@ -1,6 +1,7 @@
 package dev.wisespirit.mediumclone.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -20,5 +21,6 @@ public class Comment {
     @Column(nullable = false)
     private Long userId;
     @Column(nullable = false)
-    private Long commentText;
+    @NotBlank
+    private String commentText;
 }

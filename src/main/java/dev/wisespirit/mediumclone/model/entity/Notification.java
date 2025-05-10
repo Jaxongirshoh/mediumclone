@@ -18,5 +18,4 @@ public class Notification{
     private Long userId;
     private Long articleId;
     private NotificationType type;
-
 }

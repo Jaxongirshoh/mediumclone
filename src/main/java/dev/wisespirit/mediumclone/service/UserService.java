@@ -7,6 +7,7 @@ import dev.wisespirit.mediumclone.model.entity.User;
 import dev.wisespirit.mediumclone.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,13 +48,14 @@ public class UserService {
     }
 
     public Optional<UserDto> updateUser(UserUpdateDto dto, Long id) {
+        User user = userRepository.findById(id).get();
         User updated = userRepository
-                .save(new User(id,
-                        dto.fullName(),
-                        dto.password(),
-                        dto.bio(),
-                        dto.email(),
-                        null));
+                .save(new User(user.getId(),
+                        isBlank(dto.fullName())? dto.fullName() : user.getFullName(),
+                        isBlank(dto.password()) ? dto.password() : user.getPassword(),
+                        isBlank(dto.bio())? dto.bio() : user.getBio(),
+                        isBlank(dto.email()) ? dto.email() : user.getEmail(),
+                        user.getFollowingsId()));
         return Optional.ofNullable(new UserDto(updated.getId(),
                 updated.getFullName(),
                 updated.getPassword(),
@@ -68,13 +70,20 @@ public class UserService {
 
     public void subscribeToPerson(Long userId, Long subscriptionId) {
         User user = userRepository.findById(userId).get();
-        user.getFollowingsId().add(subscriptionId);
+        if (user.getFollowingsId() != null) {
+            user.getFollowingsId().add(subscriptionId);
+        }
+        List<Long> list = new ArrayList<>();
+        list.add(subscriptionId);
+        user.setFollowingsId(list);
         userRepository.save(user);
     }
 
     public void unSubscribeToPerson(Long userId, Long unSubscriptionId) {
         User user = userRepository.findById(userId).get();
-        user.getFollowingsId().remove(unSubscriptionId);
+        if (user.getFollowingsId()!=null) {
+            user.getFollowingsId().remove(unSubscriptionId);
+        }
         userRepository.save(user);
     }
 
@@ -94,5 +103,9 @@ public class UserService {
                         user.getFollowingsId()
                 ))
                 .or(()->Optional.empty());
+    }
+
+    private boolean isBlank(String str){
+        return str!=null&& !str.isBlank();
     }
 }

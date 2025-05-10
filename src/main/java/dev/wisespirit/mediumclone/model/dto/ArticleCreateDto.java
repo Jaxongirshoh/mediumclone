@@ -3,9 +3,10 @@ package dev.wisespirit.mediumclone.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
+
 public record ArticleCreateDto(Long userId,
-                               Long reactionCount,
                                @NotBlank String title,
                                @NotBlank String articleText,
-                               @NotBlank String topics) {
+                               List<String> topics) {
 }

@@ -6,8 +6,11 @@ import dev.wisespirit.mediumclone.model.dto.ArticleUpdateDto;
 import dev.wisespirit.mediumclone.model.entity.Article;
 import dev.wisespirit.mediumclone.repository.ArticleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArticleService {
@@ -17,52 +20,52 @@ public class ArticleService {
         this.articleRepository = articleRepository;
     }
 
-    public ArticleDto createArticle(ArticleCreateDto dto) {
+    public Optional<ArticleDto> createArticle(ArticleCreateDto dto) {
         Article article = new Article();
         article.setUserId(dto.userId());
         article.setArticleText(dto.articleText());
-        article.setTopics(dto.topics());
+        article.setTopics(String.join(",", dto.topics()));
         article.setTitle(dto.title());
         Article saved = articleRepository.save(article);
-        return new ArticleDto(saved.getId(),
+        return Optional.of(new ArticleDto(saved.getId(),
                 saved.getUserId(),
                 saved.getReactionCount(),
                 saved.getTitle(),
                 saved.getArticleText(),
-                saved.getTopics());
+                Arrays.asList(saved.getTopics().split(","))));
     }
 
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
     }
 
-    public ArticleDto updateArticleDto(ArticleUpdateDto dto, Long id) {
-        Article article = new Article();
-        article.setId(id);
-        if (dto.articleText() != null) {
+    public Optional<ArticleDto> updateArticleDto(ArticleUpdateDto dto, Long id) {
+        Article article = articleRepository.findById(id).get();
+        if (StringUtils.hasText(dto.articleText())) {
             article.setArticleText(dto.articleText());
         }
 
-        if (dto.title() != null) {
+        if (StringUtils.hasText(dto.title())) {
             article.setTitle(dto.title());
         }
 
-        if (article.getTopics() != null) {
-            article.setTopics(dto.topics());
+        if (StringUtils.hasText(dto.topics().toString())) {
+            String topics = article.getTopics();
+            article.setTopics(topics + ","+String.join(",", dto.topics()));
         }
 
         Article saved = articleRepository.save(article);
-        return new ArticleDto(
+        return Optional.of(new ArticleDto(
                 saved.getId(),
                 saved.getUserId(),
                 saved.getReactionCount(),
                 saved.getTitle(),
                 saved.getArticleText(),
-                saved.getTopics()
-        );
+                Arrays.asList(saved.getTopics().split(","))
+        ));
     }
 
-    public List<ArticleDto> getArticleByPublisher(Long userid){
+    public List<ArticleDto> getArticleByPublisher(Long userid) {
         return articleRepository.getArticleByUserId(userid)
                 .stream()
                 .map(article -> new ArticleDto(
@@ -71,12 +74,46 @@ public class ArticleService {
                         article.getReactionCount(),
                         article.getTitle(),
                         article.getArticleText(),
-                        article.getTopics()
+                        Arrays.asList(article.getTopics().split(","))
                 )).toList();
     }
 
-    public List<ArticleDto> getArticleByTopic(String topic){
-        
+    public void reactToArticle(Long articleId, Long count) {
+        Article article = articleRepository.findById(articleId).get();
+        if (count > 0) {
+            article.setReactionCount(article.getReactionCount()!=null?article.getReactionCount() + count:count);
+        } else {
+            article.setReactionCount(article.getReactionCount()!=null?article.getReactionCount() - count:0);
+        }
+        articleRepository.save(article);
     }
 
+    public List<ArticleDto> getArticleByTopic(String topic) {
+        return articleRepository.findByTopics(topic)
+                .stream().map(article -> new ArticleDto(
+                        article.getId(),
+                        article.getUserId(),
+                        article.getReactionCount(),
+                        article.getTitle(),
+                        article.getArticleText(),
+                        Arrays.asList(article.getTopics().split(","))
+                )).toList();
+    }
+
+    public boolean existById(Long id) {
+        return articleRepository.existsById(id);
+    }
+
+
+    public ArticleDto findById(Long id) {
+        Article article = articleRepository.findById(id).get();
+        return new ArticleDto(
+                article.getId(),
+                article.getUserId(),
+                article.getReactionCount(),
+                article.getTitle(),
+                article.getArticleText(),
+                Arrays.asList(article.getTopics().split(","))
+        );
+    }
 }

@@ -19,7 +19,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<UserDto> saveUser(@RequestBody UserCreateDto dto){
         return userService.createUser(dto)
                 .map(userDto -> new ResponseEntity<UserDto>(userDto, HttpStatus.CREATED))
@@ -31,18 +31,18 @@ public class UserController {
         return new ResponseEntity<>(userService.getAll(),HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserUpdateDto dto,
                                      @PathVariable Long id){
         if (!userService.existByid(id)){
             return ResponseEntity.notFound().build();
         }
         return userService.updateUser(dto, id)
-                .map(userDto -> new ResponseEntity(userDto, HttpStatus.NO_CONTENT))
+                .map(userDto -> new ResponseEntity<UserDto>(userDto, HttpStatus.NO_CONTENT))
                 .orElse(ResponseEntity.internalServerError().build());
     }
 
-@PatchMapping("/subscribers/subscribe/{userId}/{subscriptionId}")
+    @PatchMapping("/subscribers/subscribe/{userId}/{subscriptionId}")
     public ResponseEntity<Void> addSubscription(@PathVariable Long userId,
                                                 @PathVariable Long subscriptionId){
         if (!userService.existByid(userId)){
@@ -72,8 +72,16 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id){
         return userService.getById(id)
-                .map(userDto -> new ResponseEntity(userDto, HttpStatus.OK))
+                .map(userDto -> new ResponseEntity<UserDto>(userDto, HttpStatus.OK))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId){
+        if (userService.existByid(userId)) {
+            userService.deleteUser(userId);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 

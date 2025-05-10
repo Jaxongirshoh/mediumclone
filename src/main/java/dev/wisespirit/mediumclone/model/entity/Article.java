@@ -1,8 +1,12 @@
 package dev.wisespirit.mediumclone.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.Type;
+
+import java.util.List;
 
 
 @Entity
@@ -25,7 +29,6 @@ public class Article {
     @NotBlank
     @Column(nullable = false)
     private String articleText;
-    @NotBlank
     @Column(nullable = false)
     private String topics;
     //private List<Comment> comments;
