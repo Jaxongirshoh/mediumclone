@@ -1,11 +1,13 @@
-package dev.wisespirit.mediumclone.security;
+package dev.wisespirit.mediumclone.service;
 
 import dev.wisespirit.mediumclone.model.entity.User;
-import dev.wisespirit.mediumclone.service.UserService;
+import dev.wisespirit.mediumclone.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserService userService;
 
