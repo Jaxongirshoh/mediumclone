@@ -10,6 +10,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,11 +30,11 @@ public class SecurityConfig {
         return httpSecurity.csrf(Customizer.withDefaults())
                 .authorizeHttpRequests(http -> http
                         .requestMatchers(HttpMethod.POST, "/swagger-ui/**","/login", "/register").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .anyRequest().fullyAuthenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(Customizer.withDefaults())
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 

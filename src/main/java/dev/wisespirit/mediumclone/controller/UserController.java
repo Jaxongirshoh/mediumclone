@@ -19,6 +19,10 @@ public class UserController {
         this.userService = userService;
     }
 
+    /**
+     * @Deprecated(forRemoval=true) will move to AuthController
+     */
+    @Deprecated(forRemoval = true)
     @PostMapping("/create")
     public ResponseEntity<UserDto> saveUser(@RequestBody UserCreateDto dto){
         return userService.createUser(dto)
