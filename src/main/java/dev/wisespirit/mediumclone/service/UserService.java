@@ -5,7 +5,6 @@ import dev.wisespirit.mediumclone.model.dto.UserDto;
 import dev.wisespirit.mediumclone.model.dto.UserUpdateDto;
 import dev.wisespirit.mediumclone.model.entity.User;
 import dev.wisespirit.mediumclone.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class UserService {
                 .save(new User(null,
                         dto.fullName(),
                         dto.password(),
-                        dto.bio(),
+                        null,
                         dto.email(),
                         null));
         return Optional.ofNullable(new UserDto(saved.getId(),

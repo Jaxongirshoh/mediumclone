@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record UserCreateDto(@NotBlank @Column(nullable = false) String fullName,
                             @NotBlank @Column(nullable = false) String password,
-                            String bio,
                             @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Invalid email format")
                             String email) {
 
