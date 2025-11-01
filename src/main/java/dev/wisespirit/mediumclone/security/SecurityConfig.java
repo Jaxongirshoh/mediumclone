@@ -5,11 +5,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,25 +20,41 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomAuthenticationEntryPoint entryPoint;
+    private final JwtUtil jwtUtil;
+    private static final String[] WHITE_LIST = {
+            "/api/auth/**",
+            "swagger-ui/**",
+            "swagger-resource/**",
+    };
 
-    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, CustomAuthenticationEntryPoint entryPoint, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.entryPoint = entryPoint;
+        this.jwtUtil = jwtUtil;
     }
 
     public SecurityFilterChain chain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.csrf(Customizer.withDefaults())
-                .authorizeHttpRequests(http -> http
-                        .requestMatchers(HttpMethod.POST, "/swagger-ui/**","/login", "/register").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .anyRequest().fullyAuthenticated()
-                )
-                .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        return httpSecurity.
+                csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(httpRequestConf->
+                        httpRequestConf.requestMatchers(WHITE_LIST)
+                                .permitAll()
+                                .anyRequest()
+                                .fullyAuthenticated()
+                        )
+                .sessionManagement(sessionConf->sessionConf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionConf->
+                        exceptionConf.authenticationEntryPoint(entryPoint)
+                                .accessDeniedHandler())
+                .addFilterBefore(new JwtRequestFilter(jwtUtil,userDetailsService))
                 .build();
+
     }
 
     @Bean
@@ -47,7 +66,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(){
+        return new ProviderManager(authenticationProvider());
     }
 }

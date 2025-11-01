@@ -1,8 +1,11 @@
 package dev.wisespirit.mediumclone.controller;
 
+import dev.wisespirit.mediumclone.model.dto.UserCreateDto;
 import dev.wisespirit.mediumclone.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(){
-        return null;
+    public ResponseEntity<> register(@Valid @RequestBody UserCreateDto userCreateDto){
+
     }
 }
