@@ -30,8 +30,11 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private static final String[] WHITE_LIST = {
             "/api/auth/**",
-            "swagger-ui/**",
-            "swagger-resource/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**"
     };
 
     public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, CustomAuthenticationEntryPoint entryPoint, CustomAccessDeniedHandler accessDeniedHandler, JwtUtil jwtUtil) {
@@ -42,6 +45,7 @@ public class SecurityConfig {
         this.jwtUtil = jwtUtil;
     }
 
+    @Bean
     public SecurityFilterChain chain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.
                 csrf(AbstractHttpConfigurer::disable)
