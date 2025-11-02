@@ -3,6 +3,8 @@ package dev.wisespirit.mediumclone.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2Res
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
@@ -22,11 +25,11 @@ public class JwtUtil {
     private final String issuer;
     private final Logger LOG = LoggerFactory.getLogger(JwtUtil.class);
 
-    public JwtUtil(@Value("${jwt.secret.key}") Key signingKey,
+    public JwtUtil(@Value("${jwt.secret.key}") String secretKey,
                    @Value("${jwt.access-token.ttl}") long accessTokenValidityInSeconds,
                    @Value("${jwt.refresh-token.ttl}") long refreshTokenValidityInSeconds,
                    @Value("${jwt.issuer}") String issuer) {
-        this.signingKey = signingKey;
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
         this.accessTokenValidityInSeconds = accessTokenValidityInSeconds;
         this.refreshTokenValidityInSeconds = refreshTokenValidityInSeconds;
         this.issuer = issuer;

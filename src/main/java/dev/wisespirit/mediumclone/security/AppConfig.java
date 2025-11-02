@@ -1,5 +1,7 @@
 package dev.wisespirit.mediumclone.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.wisespirit.mediumclone.repository.UserRepository;
 import dev.wisespirit.mediumclone.service.CustomUserDetailsService;
 import dev.wisespirit.mediumclone.service.UserService;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +19,13 @@ public class AppConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(UserService userService){
-        return new CustomUserDetailsService(userService);
+    public UserDetailsService userDetailsService(UserRepository userRepository){
+        return new CustomUserDetailsService(userRepository);
+    }
+
+    @Bean
+    public CustomAccessDeniedHandler customAccessDeniedHandler(ObjectMapper objectMapper){
+        return new CustomAccessDeniedHandler(objectMapper);
     }
 
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 public record UserDto(Long id,
                       String fullName,
-                      String password,
                       String bio,
                       String email,
                       List<Long> followingsId) {

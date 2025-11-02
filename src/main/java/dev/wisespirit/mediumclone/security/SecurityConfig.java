@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final CustomAuthenticationEntryPoint entryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtUtil jwtUtil;
     private static final String[] WHITE_LIST = {
             "/api/auth/**",
@@ -32,10 +34,11 @@ public class SecurityConfig {
             "swagger-resource/**",
     };
 
-    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, CustomAuthenticationEntryPoint entryPoint, JwtUtil jwtUtil) {
+    public SecurityConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, CustomAuthenticationEntryPoint entryPoint, CustomAccessDeniedHandler accessDeniedHandler, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.entryPoint = entryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
         this.jwtUtil = jwtUtil;
     }
 
@@ -51,8 +54,8 @@ public class SecurityConfig {
                 .sessionManagement(sessionConf->sessionConf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptionConf->
                         exceptionConf.authenticationEntryPoint(entryPoint)
-                                .accessDeniedHandler())
-                .addFilterBefore(new JwtRequestFilter(jwtUtil,userDetailsService))
+                                .accessDeniedHandler(accessDeniedHandler))
+                .addFilterBefore(new JwtRequestFilter(jwtUtil,userDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }

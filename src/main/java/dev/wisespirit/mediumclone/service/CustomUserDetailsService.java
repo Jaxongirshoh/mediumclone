@@ -1,6 +1,7 @@
 package dev.wisespirit.mediumclone.service;
 
 import dev.wisespirit.mediumclone.model.entity.User;
+import dev.wisespirit.mediumclone.repository.UserRepository;
 import dev.wisespirit.mediumclone.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,15 +10,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserService userService) {
-        this.userService = userService;
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.getByEmail(username);
+        User user = userRepository.getByEmail(username);
         return new CustomUserDetails(user);
     }
 }

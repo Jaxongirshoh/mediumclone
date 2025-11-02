@@ -1,6 +1,5 @@
 package dev.wisespirit.mediumclone.controller;
 
-import dev.wisespirit.mediumclone.model.dto.UserCreateDto;
 import dev.wisespirit.mediumclone.model.dto.UserDto;
 import dev.wisespirit.mediumclone.model.dto.UserUpdateDto;
 import dev.wisespirit.mediumclone.service.UserService;
@@ -19,17 +18,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * @Deprecated(forRemoval=true) will move to AuthController
-     */
-    @Deprecated(forRemoval = true)
-    @PostMapping("/create")
-    public ResponseEntity<UserDto> saveUser(@RequestBody UserCreateDto dto){
-        return userService.createUser(dto)
-                .map(userDto -> new ResponseEntity<UserDto>(userDto, HttpStatus.CREATED))
-                .orElse(ResponseEntity.internalServerError().build());
-    }
-
     @GetMapping()
     public ResponseEntity<List<UserDto>> getALlUser(){
         return new ResponseEntity<>(userService.getAll(),HttpStatus.OK);
@@ -38,7 +26,7 @@ public class UserController {
     @PutMapping("/update/{id}")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserUpdateDto dto,
                                      @PathVariable Long id){
-        if (!userService.existByid(id)){
+        if (!userService.existById(id)){
             return ResponseEntity.notFound().build();
         }
         return userService.updateUser(dto, id)
@@ -49,11 +37,11 @@ public class UserController {
     @PatchMapping("/subscribers/subscribe/{userId}/{subscriptionId}")
     public ResponseEntity<Void> addSubscription(@PathVariable Long userId,
                                                 @PathVariable Long subscriptionId){
-        if (!userService.existByid(userId)){
+        if (!userService.existById(userId)){
             return ResponseEntity.notFound().build();
         }
 
-        if (!userService.existByid(subscriptionId)){
+        if (!userService.existById(subscriptionId)){
             return ResponseEntity.notFound().build();
         }
         userService.subscribeToPerson(userId,subscriptionId);
@@ -63,10 +51,10 @@ public class UserController {
     @PatchMapping("/subscribers/unsubscribe/{userId}/{subscriptionId}")
     public ResponseEntity<Void> unSubscribe(@PathVariable Long userId,
                                             @PathVariable Long subscriptionId ){
-        if (!userService.existByid(userId)){
+        if (!userService.existById(userId)){
             return ResponseEntity.notFound().build();
         }
-        if (!userService.existByid(subscriptionId)){
+        if (!userService.existById(subscriptionId)){
             return ResponseEntity.notFound().build();
         }
         userService.unSubscribeToPerson(userId,subscriptionId);
@@ -82,7 +70,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId){
-        if (userService.existByid(userId)) {
+        if (userService.existById(userId)) {
             userService.deleteUser(userId);
         }
         return ResponseEntity.notFound().build();
