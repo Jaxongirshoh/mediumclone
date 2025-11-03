@@ -41,7 +41,7 @@ public class JwtUtil {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setIssuer(issuer)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidityInSeconds * 100))
-                .signWith(signingKey, SignatureAlgorithm.ES256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .addClaims(claims)
                 .compact();
     }
@@ -52,7 +52,7 @@ public class JwtUtil {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setIssuer(issuer)
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidityInSeconds * 100))
-                .signWith(signingKey, SignatureAlgorithm.ES256)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .addClaims(claims)
                 .compact();
     }
